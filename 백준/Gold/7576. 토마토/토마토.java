@@ -1,60 +1,70 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
-
+import java.util.*;
 
 public class Main {
-    static int[] dx = {-1, 1, 0, 0};
-    static int[] dy = {0, 0, -1, 1};
-    static int n, m;
+    static int n;
+    static int m;
+    static int[] dx = new int[]{0, 0, -1, 1};
+    static int[] dy = new int[]{1, -1, 0, 0};
     static int[][] map;
-    static Queue<int[]> q = new LinkedList<>();
+    static boolean[][] isVisited;
+
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
-
-        st = new StringTokenizer(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine());
         m = Integer.parseInt(st.nextToken());
         n = Integer.parseInt(st.nextToken());
-
         map = new int[n][m];
+        isVisited = new boolean[n][m];
 
-
+        List<int[]> ripenLoaction = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < m; j++) {
-                map[i][j] = Integer.parseInt(st.nextToken());
-                if (map[i][j] == 1) {
-                    q.add(new int[]{i, j});
+                int status = Integer.parseInt(st.nextToken());
+                if (status == 1) {
+                    ripenLoaction.add(new int[] {i, j});
                 }
+                map[i][j] = status;
             }
         }
+        bfs(ripenLoaction);
 
-        System.out.println(bfs());
+        System.out.println(getResult());
+
     }
 
-    private static int bfs() {
-        while (!q.isEmpty()) {
-            int[] t = q.poll();
-            int nowX = t[0];
-            int nowY = t[1];
+    static void bfs(List<int[]> param) {
+        Queue<int[]> queue = new LinkedList<>(param);
+
+        while (!queue.isEmpty()) {
+            int[] now = queue.poll();
+            int nowX = now[0];
+            int nowY = now[1];
+
             for (int i = 0; i < 4; i++) {
                 int nextX = nowX + dx[i];
                 int nextY = nowY + dy[i];
-                if (nextX < 0 || nextX >= n || nextY < 0 || nextY >= m) continue;
-                if (map[nextX][nextY] == 0) {
+
+                if (isValid(nextX, nextY)) {
                     map[nextX][nextY] = map[nowX][nowY] + 1;
-                    q.add(new int[]{nextX, nextY});
+                    queue.add(new int[]{nextX, nextY});
                 }
             }
-        }
 
+        }
+    }
+
+    static boolean isValid(int x, int y) {
+        return x >= 0 && y >= 0 && x < n && y < m && map[x][y] == 0;
+    }
+
+    static int getResult() {
         int max = 0;
-        if (checkZero()) {
+        if (isZero()) {
             return -1;
         } else {
             for (int i = 0; i < n; i++) {
@@ -68,11 +78,12 @@ public class Main {
         }
     }
 
-    private static boolean checkZero() {
+    static boolean isZero() {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                if (map[i][j] == 0)
+                if (map[i][j] == 0) {
                     return true;
+                }
             }
         }
         return false;
