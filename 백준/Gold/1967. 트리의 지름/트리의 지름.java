@@ -7,13 +7,12 @@ import java.util.StringTokenizer;
 
 public class Main {
     static final int ZERO = 0;
-
-    static int size;
     static class Node {
-        int num, len;
+        int child;
+        int len;
 
-        public Node(int num, int len) {
-            this.num = num;
+        public Node(int child, int len) {
+            this.child = child;
             this.len = len;
         }
     }
@@ -24,16 +23,16 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int size = Integer.parseInt(br.readLine());
         StringTokenizer st;
-        size = Integer.parseInt(br.readLine());
 
         //트리 초기화
-        tree = new ArrayList[size + 1];
-        for (int i = 1; i < size + 1; i++) {
+        tree = new List[size + 1];
+        for (int i = 1; i <= size; i++) {
             tree[i] = new ArrayList<>();
         }
 
-        for (int i = 1; i <= size - 1; i++) {
+        for (int i = 0; i < size - 1; i++) {
             st = new StringTokenizer(br.readLine());
             int parent = Integer.parseInt(st.nextToken());
             int child = Integer.parseInt(st.nextToken());
@@ -42,6 +41,7 @@ public class Main {
             tree[child].add(new Node(parent, len));
         }
 
+        //알고리즘 돌리기
         for (int i = 1; i <= size; i++) {
             isVisited = new boolean[size + 1];
             isVisited[i] = true;
@@ -51,11 +51,11 @@ public class Main {
         System.out.println(result);
     }
 
-    static void dfs(int num, int weight) {
-        for (Node node : tree[num]) {
-            if (!isVisited[node.num]) {
-                isVisited[node.num] = true;
-                dfs(node.num, weight + node.len);
+    static void dfs(int parent, int weight) {
+        for (Node node : tree[parent]) {
+            if (!isVisited[node.child]) {
+                isVisited[node.child] = true;
+                dfs(node.child, weight + node.len);
             }
         }
         result = Math.max(result, weight);
