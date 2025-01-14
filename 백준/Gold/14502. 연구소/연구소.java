@@ -4,91 +4,99 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 public class Main {
-    static int[] dx = new int[]{0, 0, 1, -1};
-    static int[] dy = new int[]{1, -1, 0, 0};
+    static final int[] dx = new int[]{-1, 1, 0, 0};
+    static final int[] dy = new int[]{0, 0, -1, 1};
+
+    static int N;
+    static int M;
     static int[][] map;
-    static int n;
-    static int m;
-    static List<int[]> virus;
-    static int maxZero = 0;
+    static boolean[][] isVisited;
+    static int safe;
+    static int answer = 0;
+    static List<int[]> viruses = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        map = new int[n][m];
-        virus = new ArrayList<>();
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        map = new int[N][M];
 
-        //연구소 입력받기 & virus 위치 저장
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < m; j++) {
-                int tmp = Integer.parseInt(st.nextToken());
-                if (tmp == 2) {
-                    virus.add(new int[]{i, j});
+            for (int j = 0; j < M; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
+                if (map[i][j] == 2) {
+                    viruses.add(new int[]{i, j});
+                } else if (map[i][j] == 0) {
+                    safe++;
                 }
-                map[i][j] = tmp;
             }
         }
 
-        dfs(0);
-        System.out.println(maxZero);
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (map[i][j] == 0) {
+                    map[i][j] = 1;
+                    dfs(i, j, 1);
+                    map[i][j] = 0;
+                }
+            }
+        }
+
+        System.out.println(answer - 3);
     }
 
-    //벽 3개 세우기
-    static void dfs(int cnt) {
-        if (cnt == 3) {
-            bfs();
+    static void dfs(int x, int y, int count) {
+        if (count == 3) {
+            isVisited = new boolean[N][M];
+            int ans = bfs();
+            if (ans > answer) {
+                answer = ans;
+            }
             return;
         }
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
+        for (int i = y + 1; i < M; i++) {
+            if (map[x][i] == 0) {
+                map[x][i] = 1;
+                dfs(x, i, count + 1);
+                map[x][i] = 0;
+            }
+        }
+
+        for (int i = x + 1; i < N; i++) {
+            for (int j = 0; j < M; j++) {
                 if (map[i][j] == 0) {
                     map[i][j] = 1;
-                    dfs(cnt + 1);
+                    dfs(i, j, count + 1);
                     map[i][j] = 0;
                 }
             }
         }
     }
 
-    static void bfs() {
-        Queue<int[]> queue = new LinkedList<>(virus);
-        int[][] lab = new int[n][m];
-
-        for (int i = 0 ; i < n; i++) {
-            lab[i] = map[i].clone();
-        }
+    static int bfs() {
+        Queue<int[]> queue = new LinkedList<>(viruses);
+        int nowSafe = safe;
 
         while (!queue.isEmpty()) {
             int[] now = queue.poll();
-            int nowX = now[0];
-            int nowY = now[1];
 
             for (int i = 0; i < 4; i++) {
-                int nextX = nowX + dx[i];
-                int nextY = nowY + dy[i];
-
-                if (nextX < n && nextY < m && nextX >= 0 && nextY >= 0 && (lab[nextX][nextY] == 0)) {
-                    lab[nextX][nextY] = 2;
-                    queue.add(new int[]{nextX, nextY});
+                int nx = now[0] + dx[i];
+                int ny = now[1] + dy[i];
+                if (isValid(nx, ny) && map[nx][ny] == 0 && !isVisited[nx][ny]) {
+                    isVisited[nx][ny] = true;
+                    nowSafe--;
+                    queue.add(new int[]{nx, ny});
                 }
             }
         }
-        getSafeZone(lab);
+        return nowSafe;
     }
 
-    static void getSafeZone(int[][] lab) {
-        int res = 0;
-        for (int x = 0; x < n; x++) {
-            for (int y = 0; y < m; y++) {
-                if (lab[x][y] == 0) {
-                    res++;
-                }
-            }
-        }
-        maxZero = Math.max(maxZero, res);
+    static boolean isValid(int x, int y) {
+        return x >= 0 && y >= 0 && x < N && y < M;
     }
 }
