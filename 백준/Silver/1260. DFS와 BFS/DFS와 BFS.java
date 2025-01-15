@@ -6,65 +6,66 @@ import java.util.*;
 public class Main {
     static int N;
     static int M;
-    static int K;
-    static ArrayList<Integer>[] arr;
+    static List<Integer>[] graph;
     static boolean[] isVisited;
-    static StringBuilder sb;
+    static StringBuilder dfsResult = new StringBuilder();
+    static StringBuilder bfsResult = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-        K = Integer.parseInt(st.nextToken());
-
-        arr = new ArrayList[N + 1];
-        isVisited = new boolean[N + 1];
-        sb = new StringBuilder();
-        for (int i = 0; i < arr.length; i++) {
-            arr[i] = new ArrayList<>();
+        int V = Integer.parseInt(st.nextToken());
+        graph = new List[N + 1];
+        for (int i = 0; i < N + 1; i++) {
+            graph[i] = new ArrayList<>();
         }
 
         for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
-
-            arr[a].add(b);
-            arr[b].add(a);
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
+            graph[start].add(end);
+            graph[end].add(start);
         }
 
-        for (int i = 0; i < arr.length; i++) {
-            Collections.sort(arr[i]);
+        for (int i = 1; i < N + 1; i++) {
+            Collections.sort(graph[i]);
         }
-        dfs(K);
+
         isVisited = new boolean[N + 1];
-        sb.append("\n");
-        bfs(K);
-        System.out.println(sb);
+        dfs(V);
+        isVisited = new boolean[N + 1];
+        bfs(V);
+
+        System.out.println(dfsResult);
+        System.out.println(bfsResult);
     }
-    static void dfs(int index) {
-        isVisited[index] = true;
-        sb.append(index + " ");
-        for (int i : arr[index]) {
-            if (!isVisited[i]) {
-                dfs(i);
+
+    static void dfs(int start) {
+        isVisited[start] = true;
+        dfsResult.append(start + " ");
+        for (int next : graph[start]) {
+            if (!isVisited[next]) {
+                dfs(next);
             }
         }
     }
 
-    static void bfs(int index) {
-        isVisited[index] = true;
+    static void bfs(int start) {
         Queue<Integer> queue = new LinkedList<>();
-        queue.add(index);
+        queue.add(start);
+        isVisited[start] = true;
+
         while (!queue.isEmpty()) {
-            int a = queue.poll();
-            sb.append(a + " ");
-            for (int i : arr[a]) {
-                if (!isVisited[i]) {
-                    queue.add(i);
-                    isVisited[i] = true;
+            int now = queue.poll();
+            bfsResult.append(now + " ");
+
+            for (int next : graph[now]) {
+                if (!isVisited[next]) {
+                    isVisited[next] = true;
+                    queue.add(next);
                 }
             }
         }
