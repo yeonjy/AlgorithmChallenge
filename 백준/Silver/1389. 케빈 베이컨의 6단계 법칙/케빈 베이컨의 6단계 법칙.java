@@ -1,58 +1,62 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
-    static final int INF = 987654321;
+    static int N;
+    static int M;
+    static List<Integer>[] friends;
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        int num = Integer.parseInt(st.nextToken());
-        int relation = Integer.parseInt(st.nextToken());
-
-        int[][] map = new int[num + 1][num + 1];
-        for (int i = 1; i <= num; i++) {
-            for (int j = 1; j <= num; j++) {
-                if (i == j) {
-                    map[i][j] = 0;
-                } else {
-                    map[i][j] = INF;
-                }
-            }
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        friends = new List[N + 1];
+        for (int i = 0; i <= N; i++) {
+            friends[i] = new ArrayList<>();
         }
-
-        for (int i = 0; i < relation; i++) {
+        for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
             int a = Integer.parseInt(st.nextToken());
             int b = Integer.parseInt(st.nextToken());
-            map[a][b] = 1;
-            map[b][a] = 1;
+            friends[a].add(b);
+            friends[b].add(a);
         }
 
-        for (int k = 1; k <= num; k++) {
-            for (int i = 1; i <= num; i++) {
-                for (int j = 1; j <= num; j++) {
-                    int test = map[i][k] + map[k][j];
-                    if (map[i][j] > test) {
-                        map[i][j] = test;
-                        map[j][i] = test;
-                    }
+        int[] total = new int[N + 1];
+        int minTotal = Integer.MAX_VALUE;
+        int answer = 0;
+        for (int i = 1; i <= N; i++) {
+            total[i] = bfs(i);
+            if (minTotal > total[i]) {
+                minTotal = total[i];
+                answer = i;
+            }
+        }
+        System.out.println(answer);
+    }
+
+    static int bfs(int check) {
+        int[] levels = new int[N + 1];
+        int sum = 0;
+
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[]{check, 0});
+        while (!queue.isEmpty()) {
+            int[] now = queue.poll();
+            int person = now[0];
+            int depth = now[1];
+
+            for (int friend : friends[person]) {
+                if (levels[friend] == 0 && friend != check) {
+                    levels[friend] = depth + 1;
+                    sum += depth + 1;
+                    queue.add(new int[]{friend, depth + 1});
                 }
             }
         }
-
-        int result = 0;
-        int min = INF;
-        for (int i = 1; i <= num; i++) {
-            int test = Arrays.stream(map[i]).sum();
-            if (test < min) {
-                min = test;
-                result = i;
-            }
-        }
-        System.out.println(result);
-
+        return sum;
     }
 }
