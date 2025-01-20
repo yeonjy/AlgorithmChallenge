@@ -25,7 +25,7 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         N = Integer.parseInt(br.readLine());
         int studentNum = N * N;
-        // 초기화
+
         map = new int[N][N];
         likeFriendNums = new int[N][N];
         emptyNums = new int[N][N];
@@ -45,13 +45,11 @@ public class Main {
             }
         }
 
-        // 자리 배정하기
         for (int i = 0; i < studentNum; i++) {
             int[] seat = checkFirst(priority[i]);
             map[seat[0]][seat[1]] = priority[i];
         }
 
-        // 만족도 구하기
         long result = 0;
         for (int x = 0; x < N; x++) {
             for (int y = 0; y < N; y++) {
@@ -85,7 +83,7 @@ public class Main {
             for (int j = 0; j < N; j++) {
                 int friendCnt = 0;
                 if (map[i][j] == 0) {
-                    for (int k = 0; k < 4; k++) {  // 상하좌우 탐색
+                    for (int k = 0; k < 4; k++) {
                         int x = i + dx[k];
                         int y = j + dy[k];
                         if (isValid(x, y) && map[x][y] != 0
