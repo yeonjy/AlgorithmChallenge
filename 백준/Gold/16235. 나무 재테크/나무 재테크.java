@@ -80,7 +80,7 @@ public class Main {
                         for (int k = 0; k < 8; k++) {
                             int x = i + dx[k];
                             int y = j + dy[k];
-                            if (isValid(x, y)) {
+                            if (x >= 0 && y >= 0 && x < N && y < N) {
                                 treeMap[x][y].add(1);
                             }
                         }
@@ -96,9 +96,5 @@ public class Main {
                 nutritionMap[i][j] += addNutritions[i][j];
             }
         }
-    }
-
-    static boolean isValid(int x, int y) {
-        return x >= 0 && y >= 0 && x < N && y < N;
     }
 }
