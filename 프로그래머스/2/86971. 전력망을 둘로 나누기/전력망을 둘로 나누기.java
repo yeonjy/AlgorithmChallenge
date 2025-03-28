@@ -1,60 +1,52 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
-public class Solution {
+class Solution {
     static int n;
+    static List<Integer>[] tree;
     static boolean[] isVisited;
-    static List<Integer>[] arr;
     static int count;
-    static int difference = Integer.MAX_VALUE;
-
+    static int a;
+    static int b;
+    
     public int solution(int n, int[][] wires) {
         this.n = n;
-        arr = new List[n + 1];
-
-        // 각 송전탑마다 연결되어 있는 송전탑
-        for (int i = 0; i <= n; i++) {
-            arr[i] = new ArrayList<>();
+        
+        // 1. tree 만들기
+        tree = new ArrayList[n + 1];
+        for (int i = 1; i < n + 1; i++) {
+            tree[i] = new ArrayList<Integer>();
         }
-
         for (int[] wire : wires) {
-            int a = wire[0];
-            int b = wire[1];
-
-            arr[a].add(b);
-            arr[b].add(a);
+            tree[wire[0]].add(wire[1]);
+            tree[wire[1]].add(wire[0]);
         }
-
-        // 전선 하나씩 끊어보기
-        for (int i = 0; i < wires.length; i++) {
-            count = 0;
+        
+        // 2. 하나씩 끊기
+        int answer = Integer.MAX_VALUE;
+        for (int[] wire : wires) {
             isVisited = new boolean[n + 1];
-            int a = wires[i][0];
-            int b = wires[i][1];
-
-            arr[a].remove(arr[a].indexOf(b));
-            arr[b].remove(arr[b].indexOf(a));
-
-            dfs(a);
-            if (difference > Math.abs(n - 2 * count)) {
-                difference = Math.abs(n - 2 * count);
+            count = 1;
+            a = wire[0];
+            b = wire[1];
+            isVisited[1] = true;
+            dfs(1);
+            if (Math.abs(n - count * 2) < answer) {
+                answer = Math.abs(n - count * 2);
             }
-
-            arr[a].add(b);
-            arr[b].add(a);
         }
-
-        return difference;
+        
+        return answer;
     }
-
-    private static void dfs(int now) {
-        isVisited[now] = true;
-        count++;
-
-        for (int next : arr[now]) {
-            if (!isVisited[next]) {
-                dfs(next);
+    
+    static void dfs(int now) {
+        List<Integer> linked = tree[now];
+        for(int next : linked) {
+            if ((now == a && next == b) || (now == b && next == a) || isVisited[next]) {
+                continue;
             }
+            isVisited[next] = true;
+            count++;
+            dfs(next);
         }
     }
 }
